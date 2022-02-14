@@ -19,8 +19,14 @@ class MachineStateView(object):
     """View of the CPU and memory state"""
 
     def __init__(self, model: CPU,
-                     width: int, height: int):
-        """Create a view width x height"""
+                width: int, height: int):
+        """Create a view width x height
+        
+        Args:
+            model (CPU): The model to display
+            width (int): The width of the window
+            height (int): The height of the window
+        """
         self.width = width
         self.height = height
         self.model = model
@@ -50,7 +56,12 @@ class MachineStateView(object):
         # Memory in right 2/3 of window
         self._draw_memory()
 
-    def _draw_instruction(self, in_rect):
+    def _draw_instruction(self, in_rect: "Rectangle"):
+        """Draw the instruction word.
+        
+        Args:
+            in_rect (Rectangle): The rectangle to draw in
+        """
         x_center = (in_rect.p1.x + in_rect.p2.x)/2.0
         height = in_rect.p2.y - in_rect.p1.y
         y_line_1 = in_rect.p1.y + 0.33 * height
