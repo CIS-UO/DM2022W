@@ -208,7 +208,7 @@ mask it, and return the result.  It could be from one line
 to three lines of code, depending on how you organize it.
 
 With the constructor and extract method, we are ready to
-write some simple test cases in ``test_bitfields.py``.
+write some simple test cases in ``test_bitfield.py``.
 
 ```python
 """Unit tests for bitfield.py"""
@@ -363,7 +363,7 @@ def sign_extend(field: int, width: int) -> int:
 ```
 
 We'd better test it.  We'll add ``sign_extension`` to the imported
-identifiers in ``test_bitfields.py``, and then add:
+identifiers in ``test_bitfield.py``, and then add:
 
 ```python
 class Test_Sign_Extension(unittest.TestCase):
