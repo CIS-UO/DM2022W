@@ -24,8 +24,8 @@ class MachineStateView(object):
         self.width = width
         self.height = height
         self.model = model
-        model.register_listener(self)
-        model.memory.register_listener(self)
+        model.register_observer(self)
+        model.memory.register_observer(self)
 
         self.window = graphics.graphics.GraphWin("Duck Machine", width, height)
 

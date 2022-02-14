@@ -10,25 +10,25 @@ class MVCEvent(object):
         self.subject = subject
 
 
-class MVCListener(object):
+class MVCObserver(object):
     """Abstract base class.
     Extend this and override the notify method.
     """
 
     def notify(self, MVCEvent) -> None:
-        """Override this method in listeners"""
+        """Override this method in observers"""
         raise NotImplementedError("The notify method should be overridden in {}".format(self.__class__))
 
-class MVCListenable(object):
-    """A model object that a view object can listen to"""
+class MVSObservable(object):
+    """A model object that a view object can observe."""
 
     def __init__(self):
-        self.listeners = [ ]
+        self.observers = [ ]
 
-    def register_listener(self, listener: MVCListener) -> None:
-        self.listeners.append(listener)
+    def register_observer(self, observer: MVCObserver) -> None:
+        self.observers.append(observer)
 
     def notify_all(self, event: MVCEvent) -> None:
-        for listener in self.listeners:
-            listener.notify(event)
+        for observer in self.observers:
+            observer.notify(event)
 

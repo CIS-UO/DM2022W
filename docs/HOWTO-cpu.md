@@ -417,7 +417,7 @@ components for displaying the CPU state.
 ```python
 from memory import Memory
 from register import Register, ZeroRegister
-from mvc import MVCEvent, MVCListenable
+from mvc import MVCEvent, MVCObservable
 ```
 
 For debugging we may want to log some events, so we'll
@@ -544,10 +544,10 @@ class CPUStep(MVCEvent):
 ```
 
 The `CPU` class can then inherit the standard model-view-containiner mechanisms
-(keeping a list of listeners) from the `MVCListenable` class defined in ``mvc.py``.
+(keeping a list of observers) from the `MVCObservable` class defined in ``mvc.py``.
 
 ```python
-class CPU(MVCListenable):
+class CPU(MVCObservable):
     """Duck Machine central processing unit (CPU)
     has 16 registers (including r0 that always holds zero
     and r15 that holds the program counter), a few

@@ -4,7 +4,7 @@ is an array of 32-bit integers.
 
 """
 
-from mvc import MVCEvent, MVCListenable
+from mvc import MVCEvent, MVSObservable
 
 from typing import Callable
 
@@ -39,13 +39,13 @@ class MemoryWrite(MemoryEvent):
         self.value = value
 
 
-class Memory(MVCListenable):
+class Memory(MVSObservable):
     """Just an array of integers.  Other values are 
     encoded as integers. 
     """
 
     def __init__(self, capacity: int=1024) -> None:
-        super().__init__()  # Make it listenable
+        super().__init__()  # Make it observable
         self.capacity = capacity
         self._mem = capacity * [ 0 ]
 
