@@ -1,7 +1,7 @@
 # Duck Code
 
 This directory contains source and
-object code files of DM2019S machine
+object code files of DM2022W machine
 code.  The source code is in an assembly
 code format, .asm (with symbolic labels) 
 or .dasm (with all labels "resolved" to 

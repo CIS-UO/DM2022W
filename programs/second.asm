@@ -1,4 +1,4 @@
-#  Second DM2018S:  1 + 2 = 3, but
+#  Second DM2022W:  1 + 2 = 3, but
 #  this time reading a value from memory
 #  and storing into memory.
 #

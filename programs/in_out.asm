@@ -1,5 +1,5 @@
 # Lovingly crafted by robots
-# 2018-05-24 08:32:24.602732 from programs/in_out.awl
+# 20-05-24 08:32:24.602732 from programs/in_out.awl
 #
 	LOAD r1,r0,r0[510]
 	STORE  r1,var_1

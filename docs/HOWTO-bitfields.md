@@ -1,45 +1,45 @@
 # Bit Fields HOWTO
 
-The binary machine code of the Duck Machine 2019 (DM2019)
-packs several fields into each instruction word, as does 
+The binary machine code of the Duck Machine 2022 (DM2022W)
+packs several fields into each instruction word, as does
 any modern processor architecture.  One part of the processor,
-therefore, must *decode* instructions by unpacking those 
-fields into separate objects. 
+therefore, must *decode* instructions by unpacking those
+fields into separate objects.
 
-DM2019 is a 32-bit computer architecture.  Each instruction
-word is a 32-bit integer, the registers are 32 bits wide, 
-and memory is addressed as a sequence of 32-bit words.  (All but the 
-last of these is typical; most modern computers address memory 
-as 8-bit bytes.) 
+DM2022W is a 32-bit computer architecture.  Each instruction
+word is a 32-bit integer, the registers are 32 bits wide,
+and memory is addressed as a sequence of 32-bit words.  (All but the
+last of these is typical; most modern computers address memory
+as 8-bit bytes.)
 
 ## Parts
 
-As with any modern processor, the DM2019 CPU includes a component 
-for decoding instructions. This component makes use of some 
-circuitry for extracting each of the bit fields that make 
+As with any modern processor, the DM2022W CPU includes a component
+for decoding instructions. This component makes use of some
+circuitry for extracting each of the bit fields that make
 up the internal representation of an instruction.  Our simulation
-will closely follow that hardware organization:  We will build 
-a module that extracts bit fields, and then an instruction 
-decoder that uses the bit field manipulator.  Then we will 
-build an arithmetic logic unit (ALU) that is controlled by 
-the operation code portion of an instruction.  The ALU 
-will be incorporated into a central processing unit (CPU) next week. 
+will closely follow that hardware organization:  We will build
+a module that extracts bit fields, and then an instruction
+decoder that uses the bit field manipulator.  Then we will
+build an arithmetic logic unit (ALU) that is controlled by
+the operation code portion of an instruction.  The ALU
+will be incorporated into a central processing unit (CPU) next week.
 
 ## BitField objects
 
-Since we will be extracting the same bitfields over and over, 
-we will build one object for extracting each of the fields 
-we will want.  For example, suppose bits 5..7 represented 
-some field *spoons*.  (It doesn't, but pretend.)  Then we 
-would like to create an object that can extract just that 
-field: 
+Since we will be extracting the same bitfields over and over,
+we will build one object for extracting each of the fields
+we will want.  For example, suppose bits 5..7 represented
+some field *spoons*.  (It doesn't, but pretend.)  Then we
+would like to create an object that can extract just that
+field:
 
 ```python
 spoon_extractor = BitField(5,7)
 ```
 
-Thereafter we would use the same object to extract the 
-*spoon* field from each instruction word: 
+Thereafter we would use the same object to extract the
+*spoon* field from each instruction word:
 
 ```python
 spoon = spoon_extractor.extract(word)
@@ -47,11 +47,11 @@ spoon = spoon_extractor.extract(word)
 
 ## Preliminaries: bitfield.py
 
-We'll create a module ```bitfield.py```  (and we might as well 
-create ```test_bitfield.py``` as well.)  After the header
-docstring for ```bitfield.py```, we'll insert some standard 
-code for making it easy to turn some special logging 
-messages on and off.  These could be useful for debugging. 
+We'll create a module ``bitfield.py``  (and we might as well
+create ``test_bitfield.py`` as well.)  After the header
+docstring for ``bitfield.py``, we'll insert some standard
+code for making it easy to turn some special logging
+messages on and off.  These could be useful for debugging.
 
 ```python
 A bit field is a range of binary digits within an
@@ -70,65 +70,74 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 ```
 
-Later, when we want to print a message for debugging, 
-we will write 
+Later, when we want to print a message for debugging,
+we will write
+
 ```python
 log.debug("some useful log message")
-````
+```
 
-If we have the level at ```logging.DEBUG```, the message 
-will be printed.  If we change it to 
+If we have the level at ``logging.DEBUG``, the message
+will be printed.  If we change it to
+
 ```python
 log.setLevel(logging.INFO)
 ```
-the message will not be printed.  This can be much nicer
-than erasing or commenting out debug messages that 
-might come in handy again later. 
 
-Some of the things we will do depend on the word size 
-of the DM2019, which is 32 bits.  We'll make a symbolic 
-constant for this so that it will be easier to adapt later 
-if Duck Machines Inc produces a 64-bit CPU model. 
+the message will not be printed.  This can be much nicer
+than erasing or commenting out debug messages that
+might come in handy again later.
+
+Some of the things we will do depend on the word size
+of the DM2022W, which is 32 bits.  We'll make a symbolic
+constant for this so that it will be easier to adapt later
+if Duck Machines Inc produces a 64-bit CPU model.
 
 ```python
 WORD_SIZE = 32 
 ```
 
-## Shift and mask 
+## Shift and mask
 
-Suppose we want to extract bits m..n and ignore all 
-other bits of a word.  We can do it in two steps: 
-first we *shift* the bits to the rightmost portion 
-of an integer, and then we *mask* the bits we want. 
+Suppose we want to extract bits m..n and ignore all
+other bits of a word.  We can do it in two steps:
+first we *shift* the bits to the rightmost portion
+of an integer, and then we *mask* the bits we want.
 
 We'll work a small example with an 8-bit word to get
-the idea.  Suppose we want bits 3..5 (with the 
-usual convention that lowest order bit is bit 0, 
-the next bit is bit 1, etc; the highest bit is 7 
-and represents 2^7.  
+the idea.  Suppose we want bits 3..5 (with the
+usual convention that lowest order bit is bit 0,
+the next bit is bit 1, etc; the highest bit is 7
+and represents 2^7.
 
-Suppose the input number is ```0b11110111``` (decimal 247).
+Suppose the input number is ``0b11110111`` (decimal 247).
+
 ```python
 x = 0b11110111
-``` 
-We imagine this as (11)(110)(111); we want the 110 in the 
-middle.  We start by shifting the whole number right 
-three bits, shoving the low-order 111 off the end. 
+```
+
+We imagine this as (11)(110)(111); we want the 110 in the
+middle.  We start by shifting the whole number right
+three bits, shoving the low-order 111 off the end.
+
 ```python
 x = x >> 3
 ```
-This gives us 0b11110, which we can imagine as 
-(11)(110), i.e., the part we want is now in the low-order bits. 
-We just need to get rid of the rest.  We can do this 
-with the binary *and* operation, which in python is written 
-```&```. 
+
+This gives us 0b11110, which we can imagine as
+(11)(110), i.e., the part we want is now in the low-order bits.
+We just need to get rid of the rest.  We can do this
+with the binary *and* operation, which in python is written
+``&``.
+
 ```python
 x = x & 0b111
 ```
-This extracts the desired result of 0b110, or decimal 8. 
 
-We just need to make objects that can peform the right shifting and 
-masking for a specified bit field.  
+This extracts the desired result of 0b110, or decimal 8.
+
+We just need to make objects that can peform the right shifting and
+masking for a specified bit field.
 
 ```python
 class BitField(object):
@@ -143,15 +152,16 @@ class BitField(object):
         could be represented by from_bit=0, to_bit=3. 
         """ 
 ```
-Just to be on the safe side, let's make sure the 
-field fits in the word size: 
+
+Just to be on the safe side, let's make sure the
+field fits in the word size:
 
 ```python
         assert 0 <= from_bit < WORD_SIZE
         assert from_bit <= to_bit <= WORD_SIZE
 ```
 
-Then the first part of the initialization is obvious: 
+Then the first part of the initialization is obvious:
 
 ```python
         self.from_bit = from_bit
@@ -159,29 +169,31 @@ Then the first part of the initialization is obvious:
 ```
 
 Rather than create the mask value every time we extract
-a value, we want to compute it once in the constructor 
-and use it over and over.  We can create a mask of *n* 
-bits by repeatedly shifting it left 1 bit and 
- then filling the low-order bit with a 1.  The bitwise 
- *or* operation is represented by ```|``` in Python.   For example, 
+a value, we want to compute it once in the constructor
+and use it over and over.  We can create a mask of *n*
+bits by repeatedly shifting it left 1 bit and
+ then filling the low-order bit with a 1.  The bitwise
+ *or* operation is represented by ``|`` in Python.   For example,
 if we wanted to create a 5-bit mask, we could do it
-this way: 
+this way:
+
 ```python
 mask = 0
 for i in range(5):
    mask = (mask << 1) | 1
 ```
 
-The mask we need for a BitField object depends on the 
-width of the field.  For example, if the field is bits 3 through 5, 
-then field is 3 bits wide and would need a mask 
+The mask we need for a BitField object depends on the
+width of the field.  For example, if the field is bits 3 through 5,
+then field is 3 bits wide and would need a mask
   of 0b111. A field from bit 5 to bit 5 would be
-one bit wide, and would need a mask of 0b1. Add code 
-to the BitField constructor to record a mask of the 
-right width depending on ```from_bit``` and ```to_bit```. 
+one bit wide, and would need a mask of 0b1. Add code
+to the BitField constructor to record a mask of the
+right width depending on ``from_bit`` and ``to_bit``.
 
-With the mask, we have enough to create the ```extract```
-method.  
+With the mask, we have enough to create the ``extract``
+method.
+
 ````python
     def extract(self, word: int) -> int:
         """Extract the bitfield and return it in the 
@@ -191,12 +203,12 @@ method.
         """
 ````
 
-You will need shift the word right with the ```>>``` operation, 
+You will need shift the word right with the ``>>`` operation,
 mask it, and return the result.  It could be from one line
-to three lines of code, depending on how you organize it. 
+to three lines of code, depending on how you organize it.
 
-With the constructor and extract method, we are ready to 
-write some simple test cases in ```test_bitfields.py```. 
+With the constructor and extract method, we are ready to
+write some simple test cases in ``test_bitfields.py``.
 
 ```python
 """Unit tests for bitfield.py"""
@@ -223,49 +235,49 @@ if __name__ == "__main__":
 
 ## Packing fields into words
 
-Well, that was easy!  (Unless it didn't work.)  What 
-else do we need? 
+Well, that was easy!  (Unless it didn't work.)  What
+else do we need?
 
-Although the CPU does not pack bitfields together into a word, we're going 
-to need to do that a little later when we translate assembly code into DM2019
-instruction words (the machine language programs of the Duck Machine).  We might 
-as well take care of that now while the BitField class is fresh and familiar.  
+Although the CPU does not pack bitfields together into a word, we're going
+to need to do that a little later when we translate assembly code into DM2022
+instruction words (the machine language programs of the Duck Machine).  We might
+as well take care of that now while the BitField class is fresh and familiar.
 
-We would like a method that takes a quantity and places it into the word.  Just 
-as we may use several bitfield objects to extract different fields from a word, 
-we would like to use a set of bitfield objects to create a word from the 
-individual fields.  The ```extract``` and ```insert``` methods will be complementary: 
-If we ```insert``` a value in bits m..n, the same bitfield object should be 
-capable of ```extract```ing the same value from the word into which we inserted it.
+We would like a method that takes a quantity and places it into the word.  Just
+as we may use several bitfield objects to extract different fields from a word,
+we would like to use a set of bitfield objects to create a word from the
+individual fields.  The ``extract`` and ``insert`` methods will be complementary:
+If we ``insert`` a value in bits m..n, the same bitfield object should be
+capable of ``extract``ing the same value from the word into which we inserted it.
 
 Most of the time we will be starting with a word that is made up entirely of zero bits,
-and inserting non-overlapping fields.  It is convenient to assume that the bits into 
-which we wish to insert a value always start as zero.  Then we can simply shift 
- the value to be inserted into the right bit positions and use the bitwise 
- *or* operation (written ```|``` in Python) to place them into the word.  (If needed, we could write 
-a separate method to make them zero before we insert the new value, but usually 
-we won't need to.)  
+and inserting non-overlapping fields.  It is convenient to assume that the bits into
+which we wish to insert a value always start as zero.  Then we can simply shift
+ the value to be inserted into the right bit positions and use the bitwise
+ *or* operation (written ``|`` in Python) to place them into the word.  (If needed, we could write
+a separate method to make them zero before we insert the new value, but usually
+we won't need to.)
 
-As an example, suppose I wish to place the value 0b101 (decimal 5) into bits 3..5 of 
-variable ```result```.  I might previously have inserted the value 0b110 (decimal 6)
-into bits 0..2, so I have 
+As an example, suppose I wish to place the value 0b101 (decimal 5) into bits 3..5 of
+variable ``result``.  I might previously have inserted the value 0b110 (decimal 6)
+into bits 0..2, so I have
 
 ```python
 result = 0b110
 ```
 
-Bits 0..2 do not overlap bits 3..5, so I can shift and ```or``` the new bits into place: 
+Bits 0..2 do not overlap bits 3..5, so I can shift and ``or`` the new bits into place:
 
 ```python
 field = 0b101
 result = result | (field << 3)
 ```
 
-The result should now contain 0b101110, that is, the new field 0b101 in bits 
-3..5 followed by the old value 0b110 in bits 0..2. 
+The result should now contain 0b101110, that is, the new field 0b101 in bits
+3..5 followed by the old value 0b110 in bits 0..2.
 
-All we need to do is apply this logic in any bitfield.  The new method in bitfield 
-will have this signature: 
+All we need to do is apply this logic in any bitfield.  The new method in bitfield
+will have this signature:
 
 ```python
     def insert(self, value: int, word: int) -> int: 
@@ -277,9 +289,9 @@ will have this signature:
          """
 ```
 
-*Note: My implementations are much shorter than my docstring comments. 
-I implemented this method in two lines of code, and could have 
-compressed it to one.* 
+*Note: My implementations are much shorter than my docstring comments.
+I implemented this method in two lines of code, and could have
+compressed it to one.*
 
 class Test_Insert(unittest.TestCase):
 
@@ -290,12 +302,11 @@ class Test_Insert(unittest.TestCase):
         # Slip it in without disturbing higher bits
         self.assertEqual(low_bits.insert(0b1010, 0b1111_0000), 0b1111_1010)
 
+## What about negative numbers?
 
-## What about negative numbers? 
-
-So far we have only inserted and extracted positive integers.  Negative 
-numbers present a problem, and our code so far will not handle them 
-properly.  It can be a little surprising: 
+So far we have only inserted and extracted positive integers.  Negative
+numbers present a problem, and our code so far will not handle them
+properly.  It can be a little surprising:
 
 ```
 PyDev console: starting.
@@ -308,18 +319,18 @@ out
 29
 ```
 
-29? What?  Here's what happened.  Negative numbers in binary are 
-ordinarily kept in twos complement representation.  An 8-bit representation 
-of -3 is 0b11111101.  A 32-bit representation of -3 just has more 1s on the left, 
+29? What?  Here's what happened.  Negative numbers in binary are
+ordinarily kept in twos complement representation.  An 8-bit representation
+of -3 is 0b11111101.  A 32-bit representation of -3 just has more 1s on the left,
 still ending in 101.  Whereas we can think of a positive integer as being filled
-to the left with zeros, a negative integer is filled to the left with ones. 
-When we extract a signed (positive or negative) bit field, we need to consider 
-its leftmost bit as a sign (1 for negative, 0 for positive) and "extend" that 
+to the left with zeros, a negative integer is filled to the left with ones.
+When we extract a signed (positive or negative) bit field, we need to consider
+its leftmost bit as a sign (1 for negative, 0 for positive) and "extend" that
 sign into the full size of an integer.   This is called "sign extension."
 
-Although we are assuming 32-bit integers, Python actually uses an unusual representation of integers to efficiently support integers 
-of any size.  This variable length representation makes sign extension a little 
-bit tricky.  I will provide it for you: 
+Although we are assuming 32-bit integers, Python actually uses an unusual representation of integers to efficiently support integers
+of any size.  This variable length representation makes sign extension a little
+bit tricky.  I will provide it for you:
 
 ```python
 def sign_extend(field: int, width: int) -> int:
@@ -351,8 +362,8 @@ def sign_extend(field: int, width: int) -> int:
         return field
 ```
 
-We'd better test it.  We'll add ```sign_extension``` to the imported 
-identifiers in ```test_bitfields.py```, and then add: 
+We'd better test it.  We'll add ``sign_extension`` to the imported
+identifiers in ``test_bitfields.py``, and then add:
 
 ```python
 class Test_Sign_Extension(unittest.TestCase):
@@ -372,25 +383,25 @@ class Test_Sign_Extension(unittest.TestCase):
         self.assertEqual(sign_extend(chunk,3), -3)
 ```
 
-Should we always sign-extend the values we extract?  If we do, we'll always 
-need a zero in the high-order bit of fields we know to be positive, even if 
-know they will always be positive. For example, if wanted to represent 
-integers from 0 to 3, we would need three bits instead of two bits: 000, 001, 010, 011. 
-It is more efficient to treat such a field as "unsigned": 00, 01, 10, 11, treating 
-the high (leftmost) bit as part of the magnitude rather than a sign.  Most of the fields in in a the 
-DM2019 instruction word are unsigned.  So, we will 
-leave our ```extract``` method as it is, and add a new method ```extract_signed```
-for the cases in which we want to consider the high bit as a sign. 
+Should we always sign-extend the values we extract?  If we do, we'll always
+need a zero in the high-order bit of fields we know to be positive, even if
+know they will always be positive. For example, if wanted to represent
+integers from 0 to 3, we would need three bits instead of two bits: 000, 001, 010, 011.
+It is more efficient to treat such a field as "unsigned": 00, 01, 10, 11, treating
+the high (leftmost) bit as part of the magnitude rather than a sign.  Most of the fields in in a the
+DM2022 instruction word are unsigned.  So, we will
+leave our ``extract`` method as it is, and add a new method ``extract_signed``
+for the cases in which we want to consider the high bit as a sign.
 
 ```python
     def extract_signed(self, word: int) -> int:
         """Extract bits in bitfield as a signed integer."""
 ```
 
-This can be done in two or three lines of Python (or even in one line):  
-First extract the field as an unsigned integer, 
-and then sign-extend it.   I leave it to you.   
-Here are test cases for it: 
+This can be done in two or three lines of Python (or even in one line):
+First extract the field as an unsigned integer,
+and then sign-extend it.   I leave it to you.
+Here are test cases for it:
 
 ```python
 class Test_Signed_Extraction(unittest.TestCase):
@@ -406,8 +417,8 @@ class Test_Signed_Extraction(unittest.TestCase):
         self.assertEqual(bitfield.extract_signed(field_bits), 3)
 ```
 
-Note that we don't need an extra ```insert_signed``` method, provided 
-we mask the value to be inserted.  Let's just make sure: 
+Note that we don't need an extra ``insert_signed`` method, provided
+we mask the value to be inserted.  Let's just make sure:
 
 ```python
 class Test_Signed_Insert(unittest.TestCase):
@@ -420,8 +431,8 @@ class Test_Signed_Insert(unittest.TestCase):
         self.assertEqual(unpacked, -1)
 ```
 
-If your ```insert``` method fails this test, you may need to add 
-masking to it.  Construct a mask of all 1 bits that is exactly 
-as wide as the bit field, and use bitwise and (```&```) to 
-trim off leading ones before applying bitwise or (```|```) to insert 
-the value into the word. 
+If your ``insert`` method fails this test, you may need to add
+masking to it.  Construct a mask of all 1 bits that is exactly
+as wide as the bit field, and use bitwise and (``&``) to
+trim off leading ones before applying bitwise or (``|``) to insert
+the value into the word.

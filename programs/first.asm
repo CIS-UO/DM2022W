@@ -1,5 +1,5 @@
 #
-# A first DM2018S program.  This program uses only sequential
+# A first DM2022W program.  This program uses only sequential
 # control flow (no predication or branching) and only affects
 # registers.  When the program halts, we should see that register
 # 1 contains value 1, register 2 contains value 2, and register

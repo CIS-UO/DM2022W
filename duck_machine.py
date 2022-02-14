@@ -1,5 +1,5 @@
 """
-Duck Machine model DM2018W, 
+Duck Machine model DM2022W, 
 a simulated computer. 
 
 Interprets Duck Machine object code. 

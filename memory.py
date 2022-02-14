@@ -1,5 +1,5 @@
 """
-The Duck Machine model DM2018W main memory
+The Duck Machine model DM2022W main memory
 is an array of 32-bit integers. 
 
 """
