@@ -5,8 +5,8 @@ A very basic, ultra-RISCy computer simulation project.
 This repository is starter code for a project in CIS 211, Introduction
 to Computer Science 2, at University of Oregon.
 
-Add your `bitfields.py` from Lab 7 to this directory, then follow
-instructions in [docs/HOWTO-cpu.md]().
+Add your `bitfield.py` and `test_bitfield.py` from Lab 7 to this directory, then follow
+instructions in [docs/HOWTO-cpu.md](docs/HOWTO-cpu.md).
 
 More documentation on the Duck Machine instruction set architecture is
-in [docs/duck_machine.md]().
+in [docs/duck_machine.md](docs/duck_machine.md).
