@@ -19,7 +19,7 @@ class MVCObserver(object):
         """Override this method in observers"""
         raise NotImplementedError("The notify method should be overridden in {}".format(self.__class__))
 
-class MVSObservable(object):
+class MVCObservable(object):
     """A model object that a view object can observe."""
 
     def __init__(self):

@@ -4,7 +4,7 @@ is an array of 32-bit integers.
 
 """
 
-from mvc import MVCEvent, MVSObservable
+from mvc import MVCEvent, MVCObservable
 
 from typing import Callable
 
@@ -53,7 +53,7 @@ class MemoryWrite(MemoryEvent):
         self.value = value
 
 
-class Memory(MVSObservable):
+class Memory(MVCObservable):
     """Just an array of integers.  Other values are 
     encoded as integers. 
     """
