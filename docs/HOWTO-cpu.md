@@ -216,7 +216,9 @@ Let's begin a test suite for the CPU and write a couple
 of test cases for the *CondFlag* class.
 
 ```python
-"""Test cases for the CPU, including
+"""
+File: test_cpu.py
+Test cases for the CPU, including
 some indvidual components and definitions.
 """
 
