@@ -63,7 +63,7 @@ Most operations combine the first source register with the sum of the second sou
 
 ## Notation
 
-In documentation we will write a Duck18W instruction word as
+In documentation we will write a DM2022W instruction word as
 
 ```
     OP/cc  rX,rY,rZ[disp]
