@@ -95,7 +95,10 @@ offset_field = BitField(0, 9)
 We won't actually use the `reserved` field, but have given
 it a definition just for documentation.  All of the other
 fields will be treated as unsigned integers (non-negative values
-only), except the `offset` field is signed.  The `cond` (condition code)
+only), except the `offset` field is signed (**IMPORTANT**: 
+remember that the offset can be negative, you will need to use that
+knowledge later).
+The `cond` (condition code)
 field will actually be treated as a small array of bits.
 
 ### Operation Codes
