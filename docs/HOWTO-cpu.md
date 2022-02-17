@@ -36,7 +36,7 @@ Some other parts of the Duck Machine are provided for you.
 * ``duck_machine.py`` is where we wire together the
   CPU and memory and a graphical display.
 
- In addition, we will need ``bitfield.py`` from last week.
+ In addition, we will need ``bitfield.py`` from Lab 7.
  Copy it into this project so that we can use it for decoding
  instructions.
 
@@ -62,7 +62,7 @@ See docs/duck_machine.md for details.
 """
 ```
 
-We will need the `BitField` class from last week to extract
+We will need the `BitField` class from Lab 7 to extract
 the parts of an instruction word:
 
 ```python
