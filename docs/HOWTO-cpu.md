@@ -411,7 +411,6 @@ class TestDecode(unittest.TestCase):
 
     def test_encode_decode(self):
         instr = Instruction(OpCode.SUB, CondFlag.M | CondFlag.Z, NAMED_REGS["r2"], NAMED_REGS["r1"], NAMED_REGS["r3"], -12)
-        word = instr.encode()
         text = str(decode(0x14C84FF4))    # should be "SUB/MZ   r2,r1,r3[-12]"
         self.assertEqual(text, str(instr))
 ```
@@ -445,9 +444,8 @@ import and configure the logging module:
 
 ```python
 import logging
-logging.basicConfig()
+logging.basicConfig(level = logging.DEBUG)
 log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
 ```
 
 Before we build the main CPU, we can build the ALU component
@@ -485,7 +483,7 @@ very simple!
 Execution of operation is slightly more complicated.  We
 need to return *two* things:  Not only the result (e.g.,
 the sum of the two operands if the operation code is
-```OpCode.PLUS``), but also the resulting condition code.
+```OpCode.ADD``), but also the resulting condition code.
 
 ```python
     def exec(self, op: OpCode, in1: int, in2: int) -> Tuple[int, CondFlag]:
