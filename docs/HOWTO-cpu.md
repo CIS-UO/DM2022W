@@ -467,6 +467,7 @@ class ALU(object):
     ALU_OPS = {
         OpCode.ADD: lambda x, y: x + y,
         # FIXME:  We need subtraction, multiplication, division
+        # For division, use // for floor division
         # 
         # For memory access operations load, store, the ALU
         # performs the address calculation
