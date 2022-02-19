@@ -362,14 +362,20 @@ an integer into an *Instruction* object:
 #  This is the decode part of the fetch/decode/execute cycle of the CPU.
 #
 def decode(word: int) -> Instruction:
-        """Decode a memory word (32 bit int) into a new Instruction"""
+    """Decode a memory word (32 bit int) into a new Instruction.
+            
+    Args:
+        word: a 32-bit int, the instruction to be decoded
+    """
 ```
 
 The logic of this function is straightforward:  Use the
 BitField objects defined before (`instr_field`, `reg_target_field`, etc.)
 to extract each of the fields from ``word``, construct
-a single `Instruction` object from those fields, and return
-the `Instruction` object.
+a single `Instruction` object from all those fields, and return
+the `Instruction` object. **Important**: remember that the 
+offset field can hold both positive and negative values, so choose
+the extract method carefully.
 
 How can we test the instruction decoding?  It would help to
 have the inverse operation, a way of converting an `Instruction`
