@@ -785,7 +785,8 @@ Press enter to end
   get the integer value of op code and cond code.
 * In `ALU_OPS`, don't forget to use integer division (`//`) rather than floating point division (`/`).
 * Remember how to obtain the information from a register or memory:
-  using `Register.get()` and `Memory.get(index)`.
+  using `Register.get()` and `Memory.get(index)`. 
   Similar for saving information in a register or memory: `Register.put(value)` and `Memory.put(index, value)`.
   (And remember when we write `Class.method(v)` what we really mean is `o.method(x)` for some object `o`
   with class `Class` and some expression `x` with the value to use for `v`.)
+  For example, if you are in a `CPU` class method and want to get the value of register 3, you would use `self.registers[3].get()`.
