@@ -400,10 +400,19 @@ few errors.  Here is a test case that uses them that way:
 ```python
 class TestDecode(unittest.TestCase):
     """Encoding and decoding should be inverses"""
+    def test_encode(self):
+        instr = Instruction(OpCode.SUB, CondFlag.M | CondFlag.Z, NAMED_REGS["r2"], NAMED_REGS["r1"], NAMED_REGS["r3"], -12)
+        self.assertEqual(instr.encode(), 0x14C84FF4)
+                        
+    def test_decode(self):
+        # ADD/M r15,r0,r15[-3]
+        instr = Instruction(OpCode.ADD, CondFlag.M, NAMED_REGS["r15"], NAMED_REGS["r0"], NAMED_REGS["r15"], -3)
+        self.assertEqual(str(decode(0xc7c3ffd)), str(instr))
+
     def test_encode_decode(self):
         instr = Instruction(OpCode.SUB, CondFlag.M | CondFlag.Z, NAMED_REGS["r2"], NAMED_REGS["r1"], NAMED_REGS["r3"], -12)
         word = instr.encode()
-        text = str(decode(word))
+        text = str(decode(0x14C84FF4))    # should be "SUB/MZ   r2,r1,r3[-12]"
         self.assertEqual(text, str(instr))
 ```
 
