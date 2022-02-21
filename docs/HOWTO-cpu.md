@@ -370,12 +370,13 @@ def decode(word: int) -> Instruction:
 ```
 
 The logic of this function is straightforward:  Use the
-BitField objects defined before (`instr_field`, `reg_target_field`, etc.)
+BitField objects defined before (`op`, `reg_target_field`, etc.)
 to extract each of the fields from ``word``, construct
 a single `Instruction` object from all those fields, and return
 the `Instruction` object. **Important**: remember that the 
 offset field can hold both positive and negative values, so choose
 the extract method carefully.
+
 
 How can we test the instruction decoding?  It would help to
 have the inverse operation, a way of converting an `Instruction`
@@ -665,8 +666,8 @@ to display instruction in progress:
 The execution phase must be carefully sequenced.
 
 * First we check the instruction predicate.  We use
-  a bitwise *and* (``&``) between the CPU condition code and
-  the ``condition`` field of the instruction.   What
+  a bitwise *and* (``&``) between the CPU condition code (`self.condition`) and
+  the ``condition`` field of the instruction (`instr.cond`).   What
   happens next depends on whether the result is positive (meaning
   at least one of the condition bits that are 1 in the
   instruction predicate is true of the CPU condition) or 0
@@ -674,35 +675,37 @@ The execution phase must be carefully sequenced.
   bits in the instruction).  We'll say the condition is
   *satisfied* if the result is positive.
 
+
   * If the result of
     the bitwise *and* is positive, we perform the specified
     operation.  The left operand will be the contents
-    of the register specified by ``instr.src1``; we
+    of the register specified by ``instr.reg_src1``; we
     call the ``get`` method on that register to obtain
     its value.   The right operand will be the sum of
     the ``instr.offset`` field and the contents of
-    the register specified by ``instr.src2``.
+    the register specified by ``instr.reg_src2``.
   * We calculate a result value and new condition code
     by calling the ALU ``exec`` method, giving it
-    ``instr.opcode`` and the two operand values.
+    ``instr.op`` and the two operand values.
   * *BEFORE* we save the result value and instruction
-    code, we increment the program counter (register 15).
+    code, we increment the program counter (register 15, 
+    also aliased as `self.pc` in the CPU class).
   * Then, after incrementing the program counter, we
     complete the operation.
 
     * If the operation was STORE, we use the result
       of the calculation as a memory address, and save the
-      value of the register specified by ``instr.target``
+      value of the register specified by ``instr.reg_target``
       to that location in memory.
     * If the operation was LOAD, we use use the result
       of the calculation as a memory address, and fetch
       the value of that location in memory, storing
-      it in the register specified by ``instr.target``.
+      it in the register specified by ``instr.reg_target``.
     * If the operation was HALT, we set the halt
       flag (``self.halted``) to ``True``.
     * For the other operations (ADD, SUB, MUL, DIV) we
       store the result of the calculation in the register
-      specified by ``instr.target`` and store the
+      specified by ``instr.reg_target`` and store the
       new condition code in the ``condition`` field of
       the CPU.
   * Otherwise, if the predicate was not satisfied,
@@ -713,7 +716,9 @@ figure it out, but then ask questions if you have trouble.
 To give you a rough idea of what to expect, my ``step`` method
 implementation is about 40 lines, and about half of those
 are blank lines, comment lines, and debugging statements
-(calls to ``log.debug("your message here")``).
+(calls to ``log.debug("your message here")``, but first make sure that
+the logging level is loggging.DEBUG everywhere, including in 
+`duck_machine.py`).
 
 While I'd like to have some nice stand-alone test cases for
 the ``step`` method, they are difficult to set up because
