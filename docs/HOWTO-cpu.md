@@ -134,7 +134,7 @@ class OpCode(Enum):
     DIV = 7     # Integer division (like // in Python)
 ```
 
-As you can see, we have only 8 different instruction codes.
+As you can see, we have only 7 different instruction codes.
 We could have fit all of these codes into 3 bits, but we
 set aside 5 in the instruction word.  Evidently the chip
 designers have grand plans for future generations of
